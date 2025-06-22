@@ -1,27 +1,33 @@
-name: Daily Commit
+name: Auto Commit
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    - cron: '15 4 * * *'
-  workflow_dispatch:
+    - cron: '15 4 * * *' 
 
 jobs:
-  commit:
+  commit-job:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ allows push access
+    - name: Checkout repo with PAT
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GH_PAT }}
 
-      - name: Commit step - 23f1001363@ds.study.iitm.ac.in
-        run: |
-          echo "TDSFU Daily run: $(date -u) TDSFU" >> daily-log.txt
+    - name: Make changes (e.g., create daily log)
+      run: |
+        echo "TDS Graded Assignment runs: $(date -u) TDSGA" >> daily-log.txt
 
-      - name: Git Commit and Push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add daily-log.txt
-          git commit -m "Auto commit at $(date -u)" || echo "No changes to commit"
-          git push
+    - name: Commit and push changes
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Auto commit at $(date -u)" || echo "Nothing to commit"
+        git remote set-url origin https://x-access-token:${GH_PAT}@github.com/Kriti0613/daily-commit-workflow.git
+        git push
