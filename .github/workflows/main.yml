@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 8 1 * *'  # Runs monthly on the 1st at 08:00 UTC
+    - cron: '0 8 1 * *'  # 1st of each month at 08:00 UTC
 
 jobs:
   commit-job:
@@ -17,13 +17,15 @@ jobs:
 
     - name: Make changes (e.g., create daily log)
       run: |
-        e echo "TDS Graded Assignment runs: $(date -u) TDSGA" >> daily-log.txt
+        echo "TDS Graded Assignment runs: $(date -u) TDSGA" >> daily-log.txt
 
     - name: Commit and push changes
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git add .
         git commit -m "Auto commit at $(date -u)" || echo "Nothing to commit"
-        git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/Kriti0613/daily-commit-workflow.git
+        git remote set-url origin https://x-access-token:${GH_PAT}@github.com/Kriti0613/daily-commit-workflow.git
         git push
